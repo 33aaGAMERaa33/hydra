@@ -21,11 +21,11 @@
 ### 📦 Instalação
 
 ```bash
-pnpm install reflect-metadata
+pnpm install reflect-metadata git+https://github.com/33aaGAMERaa33
 ```
 ou
 ```bash
-npm install reflect-metadata
+npm install reflect-metadata git+https://github.com/33aaGAMERaa33
 ```
 - ⚠️ Apenas o pacote reflect-metadata é necessário. Hydra não possui outras dependências externas.
 
