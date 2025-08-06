@@ -2,8 +2,8 @@
   "name": "hydra",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "npx ts-node-dev --clear --respawn --transpile-only src/test/index.ts",
     "test": "node dist/test/index.js",
