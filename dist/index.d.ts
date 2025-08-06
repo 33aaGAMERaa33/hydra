@@ -30,3 +30,4 @@ export * from "./types/pending_injects.type";
 export * from "./types/route_handler_parameter.enum";
 export * from "./types/route_handler_parameters.type";
 export * from "./types/route_middlewares.type";
+export * from "./hydra";

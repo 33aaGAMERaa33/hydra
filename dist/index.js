@@ -46,3 +46,4 @@ __exportStar(require("./types/pending_injects.type"), exports);
 __exportStar(require("./types/route_handler_parameter.enum"), exports);
 __exportStar(require("./types/route_handler_parameters.type"), exports);
 __exportStar(require("./types/route_middlewares.type"), exports);
+__exportStar(require("./hydra"), exports);
