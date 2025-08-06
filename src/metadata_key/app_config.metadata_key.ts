@@ -1,0 +1,1 @@
+export const APP_CONFIG_METADATA_KEY = "app-config";

@@ -1,3 +1,7 @@
+src/test/
+dist/test/
+.vscode/
+
 # Logs
 logs
 *.log
@@ -69,7 +73,7 @@ web_modules/
 # Output of 'npm pack'
 *.tgz
 
-# Yarn Integrity file
+# Yarn Integrfity file
 .yarn-integrity
 
 # dotenv environment variable files
@@ -89,7 +93,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
