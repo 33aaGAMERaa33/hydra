@@ -22,11 +22,13 @@ export class RouteManager {
             try {
                 // Constroi o contexto
                 const context = new Context({
+                    req: req,
+                    res: res,
                     route: routeDefinition,
                 });
 
                 // Constroi a lista de argumentos que os handlers vão usar
-                const args = HandlerHelper.buildArgs(context, req, res);
+                const args = HandlerHelper.buildArgs(context);
 
                 // Executa os middlewares que devem ser executados antes do handler da rota
                 for(const middlewareDefinition of routeDefinition.beforeHandlerMiddlewares) {

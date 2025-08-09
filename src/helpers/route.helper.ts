@@ -1,19 +1,17 @@
-import { Context } from "vm";
-import { HydraRequest } from "../common/hydra_request";
-import { HydraResponse } from "../common/hydra_response";
+import { Context } from "../common/context";
 import { RunHandlerArgs } from "../core/types/run_handler_args.type";
 
 export class HandlerHelper {
     private constructor() {}
 
-    static buildArgs = (context: Context, req: HydraRequest, res: HydraResponse): RunHandlerArgs => {
+    static buildArgs = (context: Context): RunHandlerArgs => {
         return {
-            req: req,
-            res: res,
-            body: req.body,
-            query: req.query,
+            req: context.req,
+            res: context.res,
+            body: context.req.body,
+            query: context.req.query,
             context: context,
-            headers: req.headers,
+            headers: context.req.headers,
         };
     };
 }

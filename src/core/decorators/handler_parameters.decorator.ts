@@ -20,4 +20,4 @@ export const Res = () => createParameterDecorator(RouteHandlerParameter.res);
 export const Body = () => createParameterDecorator(RouteHandlerParameter.body);
 export const Query = () => createParameterDecorator(RouteHandlerParameter.query);
 export const Headers = () => createParameterDecorator(RouteHandlerParameter.headers);
-export const GetContext = () => createParameterDecorator(RouteHandlerParameter.context);
+export const CurrentContext = () => createParameterDecorator(RouteHandlerParameter.context);
