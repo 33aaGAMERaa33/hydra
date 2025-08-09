@@ -10,8 +10,14 @@ class MiddlewareDefinition {
         this.instance = data.instance;
         this.handlerArgs = data.handlerArgs;
     }
-    runHandler(args) {
-        console.log("OKAY");
-    }
+    runHandler = (parameters) => {
+        const args = [];
+        for (const key in this.handlerArgs) {
+            const parameterIndex = this.handlerArgs[key];
+            const parameterValue = parameters[key];
+            args[parameterIndex] = parameterValue;
+        }
+        return this.handler(...args);
+    };
 }
 exports.MiddlewareDefinition = MiddlewareDefinition;

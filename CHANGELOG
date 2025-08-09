@@ -2,7 +2,12 @@
 
 Todas as mudanças notáveis deste projeto serão documentadas aqui.
 
-## [0.2.0] - 2025-xx-xx
+## [0.2.1] - 2025-08-09
+
+### Fix
+-  Arrumado a execução dos middlewares, agora eles são funcionais
+
+## [0.2.0] - 2025-08-09
 > Várias alterações internas não foram adicionadas neste log
 
 ### Added

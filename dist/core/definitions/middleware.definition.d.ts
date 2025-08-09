@@ -12,5 +12,5 @@ export declare class MiddlewareDefinition implements Definition<MiddlewareImpl>,
         handler: Handler;
         handlerArgs: RunHandlerArgs;
     });
-    runHandler(args: RunHandlerArgs): any;
+    runHandler: (parameters: RunHandlerArgs) => any;
 }

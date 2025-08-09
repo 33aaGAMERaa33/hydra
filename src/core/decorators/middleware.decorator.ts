@@ -3,7 +3,7 @@ import { MIDDLEWARE_METADATA } from "../metadata/middleware.metadata";
 import { ORIGINAL_CONSTRUCTOR_METADATA } from "../metadata/original_constructor.metadata";
 import { HANDLER_PARAMETERS_METADATA } from "../metadata/handler_parameters.metadata";
 import { ClassConstructor } from "../types/class_constructor.type";
-import { MiddlewareDefinition } from "./middleware.definition";
+import { MiddlewareDefinition } from "../definitions/middleware.definition";
 
 export function Middleware<T extends ClassConstructor<MiddlewareImpl>>(constructor: T) {
     // Pega o construtor original
