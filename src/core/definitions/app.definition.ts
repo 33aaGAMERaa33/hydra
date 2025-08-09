@@ -1,26 +1,30 @@
+import { App } from "../../common/app";
+import { ControllerCache } from "../../common/controller_cache";
 import { RouteManager } from "../../common/route_manager";
-import { Definition } from "../../interfaces/definition.impl";
 import { ControllerDefinition } from "./controller.definition";
-import { InjectableDefinition } from "./injectable.definition";
 
-export class AppDefinition<T = any> implements Definition<T> {
-    readonly instance: T;
+export class AppDefinition {
+    readonly app: App;
     readonly port: number;
-    readonly routeManager: RouteManager;
     readonly controllers: ControllerDefinition[];
-    readonly injectables: InjectableDefinition[];
+    readonly routeManager: RouteManager = new RouteManager();
+    readonly controllerCache: ControllerCache = new ControllerCache();
 
     constructor(data: {
+        app: App,
         port: number,
-        instance: T,
-        routeManager: RouteManager,
-        controllers: ControllerDefinition[],
-        injectables: InjectableDefinition[]
+        controllers: ControllerDefinition[]
     }) {
+        this.app = data.app;
         this.port = data.port;
-        this.instance = data.instance;
         this.controllers = data.controllers;
-        this.injectables = data.injectables;
-        this.routeManager = data.routeManager;
+
+        for(const controller of data.controllers) {
+            this.controllerCache.add(controller.prefix, controller);
+        }
+    }
+
+    findController(prefix: string): ControllerDefinition | undefined {
+        return this.controllerCache.get(prefix);
     }
 }

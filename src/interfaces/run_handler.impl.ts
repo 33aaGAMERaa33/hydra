@@ -1,5 +1,5 @@
-import { RunHandlerArgs } from "../core/types/run_handler_args.type";
+import { HandlerParameters } from "../core/types/handler_parameters.type";
 
 export interface RunHandlerImpl {
-    runHandler(args: RunHandlerArgs): any;
+    runHandler(parameters: HandlerParameters): any; 
 }

@@ -1,10 +1,11 @@
+import { AppDefinition } from "./core/definitions/app.definition";
+import http from "http";
+import { HttpMethod } from "./core/enums/http_method.enum";
+import { APP_METADATA } from "./core/metadatas/app.metadata";
+import { ORIGINAL_CONSTRUCTOR_METADATA } from "./core/metadatas/original_constructor.metadata";
+import { Context } from "./common/context";
 import { HydraRequest } from "./common/hydra_request";
 import { HydraResponse } from "./common/hydra_response";
-import { AppDefinition } from "./core/definitions/app.definition";
-import { APP_METADATA } from "./core/metadata/app_config.metadata";
-import { ORIGINAL_CONSTRUCTOR_METADATA } from "./core/metadata/original_constructor.metadata";
-import { HttpMethod } from "./core/types/http_method.enum";
-import http from "http";
 
 export class Hydra {
     private readonly appDefinition: AppDefinition;
@@ -37,33 +38,37 @@ export class Hydra {
         this.isRunning = false;
     }
 
+    getPort(): number {
+        return this.appDefinition.port;
+    }
+
     // handler da requisição do servidor
     private async onRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
         const url = new URL(req.url!, `http://${req.headers.host}`);;
-        const httpMethod: HttpMethod | undefined = req.method as HttpMethod;
+        const method: HttpMethod | undefined = req.method as HttpMethod;
 
         // Verifica se tem algum dado faltando
         // Se tiver ignora a requisição
-        if(!url.pathname || !httpMethod) return;
+        if(!url.pathname || !method) return;
 
         // Constroi as propriedades para inserir em HydraRequest
         const body = await this.getBody(req);
         const query = url.searchParams;
 
-        // Converte os dados da requisição e prepara uma classe para manipular a resposta
-        const hydraRequest = new HydraRequest({
-            req: req,
-            url: url,
-            body: body,
-            query: query,
-            httpMethod: httpMethod,
+        // Constroi o contexto da requisição
+        const context = new Context({
+            req: new HydraRequest({
+                url: url,
+                req: req,
+                body: body,
+                query: query,
+                method: method,
+            }),
+            res: new HydraResponse(res), 
         });
-        // Constroi o manipulador da resposta
-        const hydraResponse = new HydraResponse(res);
 
-        // Chama o manipulador de rota
-        // Apartir daqui ele cuida do resto da requisição
-        this.appDefinition.routeManager.routeHandler(hydraRequest, hydraResponse, this.appDefinition.controllers);
+        // Chama o manipulador de rotas para cuidar do resto da requisição
+        this.appDefinition.routeManager.manageRoute(context, this.appDefinition);
     }
 
     // Metodo para pegar o corpo da requisiçao

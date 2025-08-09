@@ -3,6 +3,9 @@
 Todas as mudanças notáveis deste projeto serão documentadas aqui.
 
 ## [0.3.0] - 2025-08-09
+### Changed
+- Foi feito um rework no projeto
+- Tudo foi alterado ou substituido
 
 ### Fix
 -  Arrumado a execução dos middlewares, agora eles são funcionais

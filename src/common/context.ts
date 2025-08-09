@@ -5,16 +5,13 @@ import { HydraResponse } from "./hydra_response";
 export class Context {
     readonly req: HydraRequest;
     readonly res: HydraResponse;
-    readonly route: RouteDefinition;
     protected redirected: boolean = false;
     protected readonly data: Map<any, any> = new Map();
     
     constructor(data: {
-        route: RouteDefinition,
         req: HydraRequest,
         res: HydraResponse,
     }) {
-        this.route = data.route;
         this.req = data.req;
         this.res = data.res;
     }

@@ -1,4 +1,4 @@
-export enum RouteHandlerParameter {
+export enum HandlerParameter {
     req = "req",
     res = "res",
     body = "body",

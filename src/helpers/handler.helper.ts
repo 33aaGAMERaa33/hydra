@@ -1,10 +1,10 @@
 import { Context } from "../common/context";
-import { RunHandlerArgs } from "../core/types/run_handler_args.type";
+import { HandlerParameters } from "../core/types/handler_parameters.type";
 
 export class HandlerHelper {
     private constructor() {}
 
-    static buildArgs = (context: Context): RunHandlerArgs => {
+    static buildArgs = (context: Context): HandlerParameters => {
         return {
             req: context.req,
             res: context.res,

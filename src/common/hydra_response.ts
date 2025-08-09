@@ -1,5 +1,5 @@
 import http from "http";
-import { HeaderValue, Header } from "../core/types/header";
+import { Header, HeaderValue } from "../core/types/header";
 import { HttpStatus } from "../core/types/http_status.enum";
 
 export class HydraResponse {

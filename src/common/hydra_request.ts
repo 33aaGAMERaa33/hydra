@@ -1,10 +1,10 @@
 import http from "http";
-import { HttpMethod } from "../core/types/http_method.enum";
+import { HttpMethod } from "../core/enums/http_method.enum";
 
 export class HydraRequest {
     readonly url: URL;
     readonly body: any;
-    readonly httpMethod: HttpMethod;
+    readonly method: HttpMethod;
     readonly query: URLSearchParams;
 
     private readonly req: http.IncomingMessage;
@@ -13,13 +13,13 @@ export class HydraRequest {
         req: http.IncomingMessage;
         url: URL; 
         body: any;
-        httpMethod: HttpMethod;
+        method: HttpMethod;
         query: URLSearchParams;
     }) {
         this.req = data.req;
         this.url = data.url;
         this.body = data.body;
-        this.httpMethod = data.httpMethod;
+        this.method = data.method;
         this.query = data.query;
     }
 
