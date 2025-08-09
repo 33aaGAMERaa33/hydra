@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteManager = void 0;
-const http_exception_1 = require("../exceptions/http.exception");
-const use_middleware_metadata_key_1 = require("../metadata_key/use_middleware.metadata_key");
-const response_data_helper_1 = require("../models/helpers/response_data.helper");
-const route_helper_1 = require("../models/helpers/route.helper");
-const http_status_enum_1 = require("../types/http_status.enum");
-const middleware_type_enum_1 = require("../types/middleware_type.enum");
 const context_1 = require("./context");
+const http_exception_1 = require("../core/exceptions/http.exception");
+const use_middleware_metadata_key_1 = require("../core/metadata_key/use_middleware.metadata_key");
+const http_status_enum_1 = require("../core/types/http_status.enum");
+const middleware_type_enum_1 = require("../core/types/middleware_type.enum");
+const route_helper_1 = require("../helpers/route.helper");
+const response_data_helper_1 = require("../helpers/response_data.helper");
 class RouteManager {
     // Metodo para manipular a rota
     async routeHandler(req, res, controllers, middlewares) {
@@ -18,17 +18,14 @@ class RouteManager {
         if (controller && route) {
             try {
                 // Pega os middlewares da rota
-                const routeMiddlewares = this.getRouteMiddlewares(controller, route, middlewares);
+                const beforeRouteHandlerMiddlewares = this.getRouteMiddlewares(controller, route, middlewares, middleware_type_enum_1.MiddlewareType.beforeRouteHandler);
+                const afterRouteHandlerMiddlewares = this.getRouteMiddlewares(controller, route, middlewares, middleware_type_enum_1.MiddlewareType.afterRouteHandler);
                 // Cria um contexto
                 const context = new context_1.Context({
                     route: route,
                 });
                 // Usa os middlewares que devem ser executados antes do handler da rota
-                for (const middleware of routeMiddlewares) {
-                    // Verifica se é para ser executado antes da rota
-                    // Se nao for pula
-                    if (middleware.getType() !== middleware_type_enum_1.MiddlewareType.beforeRouteHandler)
-                        continue;
+                for (const middleware of beforeRouteHandlerMiddlewares) {
                     // Pega o construtor original
                     const originalConstructor = middleware.__constructor;
                     // Executa o middleware
@@ -39,11 +36,7 @@ class RouteManager {
                 // Salva os dados de resposta no contexto
                 context.saveData(route, result);
                 // Usa os middlewares que devem ser executados depois do handler da rota
-                for (const middleware of routeMiddlewares) {
-                    // Verifica se é para ser executado depois da rota
-                    // Se nao for pula
-                    if (middleware.getType() !== middleware_type_enum_1.MiddlewareType.afterRouteHandler)
-                        continue;
+                for (const middleware of afterRouteHandlerMiddlewares) {
                     // Pega o construtor original
                     const originalConstructor = middleware.__constructor;
                     // Executa o middleware
@@ -71,7 +64,7 @@ class RouteManager {
         }
     }
     // Metodo para pegar os middlewares da rota
-    getRouteMiddlewares(controller, route, middlewares) {
+    getRouteMiddlewares(controller, route, middlewares, middlewareType) {
         const routeMiddlewares = [];
         // Pega os middlewares da rota
         const routeMiddlewaresToUse = Reflect.getMetadata(use_middleware_metadata_key_1.USE_MIDDLEWARE_METADATA_KEY, controller.__constructor, route.propertyKey) ?? [];
@@ -82,7 +75,8 @@ class RouteManager {
                 const originalConstructor = middleware.__constructor;
                 // Verifica se os construtores são iguais
                 // Se não forem pula ele
-                if (routeMiddleware !== originalConstructor)
+                // Também pula se o tipo for diferente
+                if (routeMiddleware !== originalConstructor || middleware.getType() !== middlewareType)
                     continue;
                 // Adiciona o middlewre na rota
                 routeMiddlewares.push(middleware);

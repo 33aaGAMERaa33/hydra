@@ -1,0 +1,24 @@
+# Changelog
+
+Todas as mudanças notáveis deste projeto serão documentadas aqui.
+
+## [0.2.0] - 2025-xx-xx
+> Várias alterações internas não foram adicionadas neste log
+
+### Added
+- Classes de definição que substituiram as implementações implicitas
+
+### Changed
+- A função `getRouteMiddlewares` do `RouteManager` (`src/common/route_manager`) agora aceita um novo parâmetro para retornar apenas middlewares de um tipo especificado.
+- A função `routeHandler` do `RouteManager` foi modificada para se adaptar à alteração na `getRouteMiddlewares`.
+- Troca de implementações implicitas por classes de definição
+- Re-estruturação da estrutura de pastas
+- Re-construção dos decoradores e re-estruturação da logica de implementação: Controller, Method, Middleware, Injectable & Inject
+
+### Removed
+- Função `getRouteMiddlewares` do `RouteManager` (`src/common/route_manager`) foi substituida pelas propriedades de `RouteDefinition`, propriedades `afterHandlerMiddlewares` e `beforeHandlerMiddlewares`.
+- Removido as implementações implicitas, agora foram substituidas por classes de definição
+
+## [0.1.0] - 2025-06-08
+### Added
+- Primeira versão do projeto.

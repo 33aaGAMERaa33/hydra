@@ -1,11 +1,11 @@
-import { Route } from "./route";
+import { RouteDefinition } from "../core/definitions/route.definition";
 
 export class Context {
-    readonly route: Route;
+    readonly route: RouteDefinition;
     private readonly data: Map<any, any> = new Map();
     
     constructor(data: {
-        route: Route,
+        route: RouteDefinition,
     }) {
         this.route = data.route;
     }

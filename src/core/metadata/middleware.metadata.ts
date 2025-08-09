@@ -1,0 +1,1 @@
+export const MIDDLEWARE_METADATA = "middleware";

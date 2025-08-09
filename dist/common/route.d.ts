@@ -1,5 +1,5 @@
 import { Equals } from "../interfaces/equals.impl";
-import { HttpMethod } from "../types/http_method.enum";
+import { HttpMethod } from "../core/types/http_method.enum";
 export declare class Route implements Equals<Route> {
     readonly path: string;
     readonly httpMethod: HttpMethod;

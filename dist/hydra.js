@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Hydra = void 0;
-const app_config_metadata_key_1 = require("./metadata_key/app_config.metadata_key");
-const original_constructor_metadata_key_1 = require("./metadata_key/original_constructor.metadata_key");
 const hydra_request_1 = require("./common/hydra_request");
 const hydra_response_1 = require("./common/hydra_response");
 const http_1 = __importDefault(require("http"));
+const app_config_metadata_key_1 = require("./core/metadata_key/app_config.metadata_key");
+const original_constructor_metadata_key_1 = require("./core/metadata_key/original_constructor.metadata_key");
 class Hydra {
     appConfig;
     server;
