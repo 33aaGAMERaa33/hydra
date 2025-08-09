@@ -17,7 +17,7 @@ export function Middleware<T extends ClassConstructor<MiddlewareImpl>>(construct
             super(...args);
 
             // Instancia a definição do middleware e guarda em metadados na instancia
-            const middlewareDefinition = new MiddlewareDefinition<T>({
+            const middlewareDefinition = new MiddlewareDefinition({
                 instance: this as any,
                 handlerArgs: handlerArgs,
                 handler: this.handler.bind(this),

@@ -1,59 +1,52 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteManager = void 0;
-const context_1 = require("./context");
 const http_exception_1 = require("../core/exceptions/http.exception");
-const use_middleware_metadata_key_1 = require("../core/metadata_key/use_middleware.metadata_key");
 const http_status_enum_1 = require("../core/types/http_status.enum");
-const middleware_type_enum_1 = require("../core/types/middleware_type.enum");
-const route_helper_1 = require("../helpers/route.helper");
 const response_data_helper_1 = require("../helpers/response_data.helper");
+const route_helper_1 = require("../helpers/route.helper");
+const context_1 = require("./context");
 class RouteManager {
+    routeCache = new Map();
     // Metodo para manipular a rota
-    async routeHandler(req, res, controllers, middlewares) {
+    async routeHandler(req, res, controllers) {
         // Procura a rota referente a requisição
-        const [controller, route] = this.findRoute(controllers, req.url.pathname, req.httpMethod) ?? [];
+        const [controller, routeDefinition] = this.findRoute(controllers, req.url.pathname, req.httpMethod) ?? [];
         // Se ela for encontrada executa o manipulador proprio dela
         // Caso contrario gera uma exceção http de status NOT FOUND
-        if (controller && route) {
+        if (controller && routeDefinition) {
             try {
-                // Pega os middlewares da rota
-                const beforeRouteHandlerMiddlewares = this.getRouteMiddlewares(controller, route, middlewares, middleware_type_enum_1.MiddlewareType.beforeRouteHandler);
-                const afterRouteHandlerMiddlewares = this.getRouteMiddlewares(controller, route, middlewares, middleware_type_enum_1.MiddlewareType.afterRouteHandler);
-                // Cria um contexto
+                // Constroi o contexto
                 const context = new context_1.Context({
-                    route: route,
+                    route: routeDefinition,
                 });
-                // Usa os middlewares que devem ser executados antes do handler da rota
-                for (const middleware of beforeRouteHandlerMiddlewares) {
-                    // Pega o construtor original
-                    const originalConstructor = middleware.__constructor;
-                    // Executa o middleware
-                    await middleware.handler(...route_helper_1.RouteHelper.buildArgs(context, req, res, originalConstructor, "handler"));
+                // Constroi a lista de argumentos que os handlers vão usar
+                const args = route_helper_1.HandlerHelper.buildArgs(context, req, res);
+                // Executa os middlewares que devem ser executados antes do handler da rota
+                for (const middlewareDefinition of routeDefinition.beforeHandlerMiddlewares) {
+                    await middlewareDefinition.runHandler(args);
                 }
-                // Executa o handler da rota
-                const result = await route.handler(...route_helper_1.RouteHelper.buildArgs(context, req, res, controller.__constructor, route.propertyKey));
-                // Salva os dados de resposta no contexto
-                context.saveData(route, result);
-                // Usa os middlewares que devem ser executados depois do handler da rota
-                for (const middleware of afterRouteHandlerMiddlewares) {
-                    // Pega o construtor original
-                    const originalConstructor = middleware.__constructor;
-                    // Executa o middleware
-                    await middleware.handler(...route_helper_1.RouteHelper.buildArgs(context, req, res, originalConstructor, "handler"));
+                // Chama o handler da rota
+                const result = await routeDefinition.runHandler(args);
+                // Salva o resultado no contexto para que seja possivel dos middlewares alterarem se necessario
+                context.saveData(routeDefinition, result);
+                // Executa os middlewares que devem ser executados depois do handler da rota
+                for (const middlewareDefinition of routeDefinition.afterHandlerMiddlewares) {
+                    await middlewareDefinition.runHandler(args);
                 }
-                // Tenta converter o resultadod do handler em algo possivel de retornar
-                const data = response_data_helper_1.ResponseDataHelper.adaptResponse(context.getData(route));
-                // Se a converção deu certo, registra o status como ok e define o tipo do conteudo no content-type
-                // Caso contrario define o status como no_content
-                if (data !== undefined) {
+                // Adapta o resultado para a resposta
+                const [header, data] = response_data_helper_1.ResponseDataHelper.adaptResponse(context.getData(routeDefinition)) ?? [];
+                // Verifica se a resposta foi adaptada, se foi registra o header e o codigo de status
+                // Caso nao tenha sido registra o codigo de status como no_content
+                if (header !== undefined && data !== undefined) {
+                    res.setHeader(header);
                     res.setStatusCode(http_status_enum_1.HttpStatus.OK);
-                    res.setHeader(data?.[0]);
                 }
-                else
+                else {
                     res.setStatusCode(http_status_enum_1.HttpStatus.NO_CONTENT);
+                }
                 // Envia a resposta
-                res.sendResponse(data?.[1]);
+                res.sendResponse(data);
             }
             catch (e) {
                 this.routeException(res, e);
@@ -63,57 +56,40 @@ class RouteManager {
             this.routeException(res, new http_exception_1.HttpException(http_status_enum_1.HttpStatus.NOT_FOUND));
         }
     }
-    // Metodo para pegar os middlewares da rota
-    getRouteMiddlewares(controller, route, middlewares, middlewareType) {
-        const routeMiddlewares = [];
-        // Pega os middlewares da rota
-        const routeMiddlewaresToUse = Reflect.getMetadata(use_middleware_metadata_key_1.USE_MIDDLEWARE_METADATA_KEY, controller.__constructor, route.propertyKey) ?? [];
-        // Intera sobre os middlewares para incluir apenas os middlewares da rota
-        for (const routeMiddleware of routeMiddlewaresToUse.toReversed()) {
-            for (const middleware of middlewares) {
-                // Pega o construtor original do middleware
-                const originalConstructor = middleware.__constructor;
-                // Verifica se os construtores são iguais
-                // Se não forem pula ele
-                // Também pula se o tipo for diferente
-                if (routeMiddleware !== originalConstructor || middleware.getType() !== middlewareType)
-                    continue;
-                // Adiciona o middlewre na rota
-                routeMiddlewares.push(middleware);
-            }
-        }
-        return routeMiddlewares;
-    }
     // Metodo que cuida das exceções da rota
     routeException(res, e) {
         if (e instanceof http_exception_1.HttpException) {
-            // Tenta transforma o conteudo da mensagem em algo possivel de enviar
-            const data = response_data_helper_1.ResponseDataHelper.adaptResponse(e.message);
-            // Verifica se foi possivel transformar
-            // Se foi registra o tipo do conteudo no header 
-            if (data !== undefined)
-                res.setHeader(data[0]);
-            // Retorna o conteudo e o status de resposta
+            // Adapta a mensagem para a resposta
+            const [header, data] = response_data_helper_1.ResponseDataHelper.adaptResponse(e.message) ?? [];
+            // Se a mensagem foi adaptada registra o header do tipo dela
+            if (header !== undefined && data !== undefined) {
+                res.setHeader(header);
+            }
+            // Registra o codigo de status e envia a resposta
             res.setStatusCode(e.status);
-            res.sendResponse(data?.[1]);
+            res.sendResponse(data);
         }
         else {
+            // Registra como erro interno e envia uma resposta vazia
             res.setStatusCode(http_status_enum_1.HttpStatus.INTERNAL_SERVER_ERROR);
             res.sendResponse();
         }
     }
     findRoute(controllers, path, httpMethod) {
-        // Intera sobre os controladores fornecidos e nas rotas desses controladores para procurar pela rota
+        const key = `${httpMethod}:${path}`;
+        if (this.routeCache.has(key)) {
+            return this.routeCache.get(key);
+        }
         for (const controller of controllers) {
-            // Intera sobre as rotas para verificar se ela é compativel com o caminho e metodo fornecido
-            for (const route of controller.__routes) {
-                // Verifica se a rota é compativel com o caminho e metodo fornecido
-                // Se for retorna o controlador e a rota
-                if (route.forThis(path, httpMethod))
+            for (const route of controller.routesDefinition) {
+                // Verifica se a rota é compatível com o caminho e método fornecido
+                if (route.forThis(path, httpMethod)) {
+                    // Armazena no cache somente se a rota combina
+                    this.routeCache.set(key, [controller, route]);
                     return [controller, route];
+                }
             }
         }
-        // Retorna undefinido caso a rota não tenha sido encontrada
         return undefined;
     }
 }

@@ -9,7 +9,7 @@ class ResponseDataHelper {
             case "object":
                 try {
                     return [
-                        { name: "content-type", value: "application/json" },
+                        { name: "content-type", value: "application/json; charset=utf-8" },
                         JSON.stringify(data),
                     ];
                 }
@@ -17,7 +17,7 @@ class ResponseDataHelper {
             case "string":
                 if (data.trim().startsWith("<!DOCTYPE html>") || data.trim().startsWith("<html>")) {
                     return [
-                        { name: "content-type", value: "text/html" },
+                        { name: "content-type", value: "text/html; charset=utf-8" },
                         String(data).trim(),
                     ];
                 }
@@ -26,7 +26,7 @@ class ResponseDataHelper {
             case "boolean":
             case "symbol":
                 return [
-                    { name: "content-type", value: "text/plain" },
+                    { name: "content-type", value: "text/plain; charset=utf-8" },
                     String(data).trim()
                 ];
             case "function":

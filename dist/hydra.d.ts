@@ -1,5 +1,5 @@
 export declare class Hydra {
-    private readonly appConfig;
+    private readonly appDefinition;
     private readonly server;
     private isRunning;
     private constructor();

@@ -6,15 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Hydra = void 0;
 const hydra_request_1 = require("./common/hydra_request");
 const hydra_response_1 = require("./common/hydra_response");
+const app_config_metadata_1 = require("./core/metadata/app_config.metadata");
+const original_constructor_metadata_1 = require("./core/metadata/original_constructor.metadata");
 const http_1 = __importDefault(require("http"));
-const app_config_metadata_key_1 = require("./core/metadata_key/app_config.metadata_key");
-const original_constructor_metadata_key_1 = require("./core/metadata_key/original_constructor.metadata_key");
 class Hydra {
-    appConfig;
+    appDefinition;
     server;
     isRunning = false;
     constructor(appConfig, server) {
-        this.appConfig = appConfig;
+        this.appDefinition = appConfig;
         this.server = server;
     }
     // Metodo para iniciar o servidor
@@ -27,7 +27,7 @@ class Hydra {
         // Registra o handler da requisição
         this.server.on("request", this.onRequest.bind(this));
         // Começa a escutar na porta requisitada
-        this.server.listen(this.appConfig.__port, () => {
+        this.server.listen(this.appDefinition.port, () => {
             this.isRunning = true;
         });
     }
@@ -63,7 +63,7 @@ class Hydra {
         const hydraResponse = new hydra_response_1.HydraResponse(res);
         // Chama o manipulador de rota
         // Apartir daqui ele cuida do resto da requisição
-        this.appConfig.__routeManager.routeHandler(hydraRequest, hydraResponse, this.appConfig.__controllers, this.appConfig.__middlewares);
+        this.appDefinition.routeManager.routeHandler(hydraRequest, hydraResponse, this.appDefinition.controllers);
     }
     // Metodo para pegar o corpo da requisiçao
     getBody(req) {
@@ -91,18 +91,18 @@ class Hydra {
         // Tenta pegar o construtor da instancia
         const appConstructor = Object.getPrototypeOf(app).constructor;
         // Pega os metadados
-        const isAppConfig = Reflect.getMetadata(app_config_metadata_key_1.APP_CONFIG_METADATA_KEY, appConstructor);
-        const originalConstructor = Reflect.getMetadata(original_constructor_metadata_key_1.ORIGINAL_CONSTRUCTOR_METADATA_KEY, appConstructor);
+        const isAppConfig = Reflect.getMetadata(app_config_metadata_1.APP_METADATA, appConstructor);
+        const originalConstructor = Reflect.getMetadata(original_constructor_metadata_1.ORIGINAL_CONSTRUCTOR_METADATA, appConstructor);
         // Verifica se a instancia é um AppConfig e se o construtor original foi perdido
         // Caso alguma falhar um erro será gerado
         if (!isAppConfig || !originalConstructor)
             throw new Error("A instancia fornecida não é uma configuração de app");
-        // Se for AppConfig e o construtor original não for perdido, então a instancia implementa AppConfigImplicitImpl de forma implicita
-        const appConfigInstance = app;
+        // Pega a definição da aplicação que está guardada na instancia via metadados
+        const appDefinition = Reflect.getMetadata(app_config_metadata_1.APP_METADATA, app);
         // Prepara o servidor
         const server = http_1.default.createServer();
-        // Instancia e retrna o manipulador do servidor
-        return new Hydra(appConfigInstance, server);
+        // Instancia e retorna o manipulador do servidor
+        return new Hydra(appDefinition, server);
     }
 }
 exports.Hydra = Hydra;

@@ -1,15 +1,16 @@
+import { ControllerDefinition } from "../core/definitions/controller.definition";
+import { InjectableDefinition } from "../core/definitions/injectable.definition";
+import { MiddlewareDefinition } from "../core/definitions/middleware.definition";
 import { ClassConstructor } from "../core/types/class_constructor.type";
-import { ControllerImplicitImpl } from "../interfaces/controller_implicit.impl";
-import { InjectableImplicitImpl } from "../interfaces/injectable_implicit.impl";
+import { Definition } from "../interfaces/definition.impl";
 import { MiddlewareImpl } from "../interfaces/middleware.impl";
-import { OriginalConstructorImplicitImpl } from "../interfaces/original_constructor_implicit.impl";
 export declare class AppConfigHelper {
     private constructor();
-    static instantiateControllers<T extends ClassConstructor>(controllersConstructor: T[]): ControllerImplicitImpl[];
-    static instantiateInjectables<T extends ClassConstructor>(injectablesConstructor: T[]): InjectableImplicitImpl[];
-    static instantiateMiddlewares<T extends MiddlewareImpl>(middlewaresConstructor: ClassConstructor<T>[]): MiddlewareImpl[];
-    static resolveDependences<T extends OriginalConstructorImplicitImpl>(instances: T[], injectables: InjectableImplicitImpl[], data?: {
-        passAlreadyResolved: boolean;
+    static instantiateControllers<T extends ClassConstructor>(controllersConstructor: T[], middlewaresDefinition: MiddlewareDefinition[]): ControllerDefinition<any>[];
+    static instantiateInjectables(injectablesConstructor: ClassConstructor[]): InjectableDefinition[];
+    static instantiateMiddlewares<T extends ClassConstructor<MiddlewareImpl>>(middlewaresConstructor: T[]): MiddlewareDefinition[];
+    static resolveDependences<T>(definition: Definition<T>, injectables: InjectableDefinition[], data: {
         ignoreNotResolved: boolean;
+        passAlreadyResolved: boolean;
     }): void;
 }
