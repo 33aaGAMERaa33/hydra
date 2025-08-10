@@ -4,7 +4,7 @@ import { HandlerParameters } from "../core/types/handler_parameters.type";
 export class HandlerHelper {
     private constructor() {}
 
-    static buildArgs = (context: Context): HandlerParameters => {
+    static buildParameters = (context: Context): HandlerParameters => {
         return {
             req: context.req,
             res: context.res,

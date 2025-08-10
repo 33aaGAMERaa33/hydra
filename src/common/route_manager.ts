@@ -16,8 +16,10 @@ export class RouteManager {
         // Se foi continua o fluxo normal
         // Se não retorna que não foi encontrado
         if(controller && route) {
+            // Constroi os parametros dos handlers
+            const parameters = HandlerHelper.buildParameters(context);
             // Executa o handler da rota
-            const result = await route.runHandler(HandlerHelper.buildArgs(context));    
+            const result = await route.runHandler(parameters);   
 
             // Prepara a resposta para enviar
             const [header, data] = ResponseDataHelper.adaptResponse(result) ?? [];

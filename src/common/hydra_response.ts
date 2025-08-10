@@ -4,7 +4,7 @@ import { HttpStatus } from "../core/types/http_status.enum";
 
 export class HydraResponse {
     readonly res: http.ServerResponse;
-
+    
     constructor(res: http.ServerResponse) {
         this.res = res;
     }

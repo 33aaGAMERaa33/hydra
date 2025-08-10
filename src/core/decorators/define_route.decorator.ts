@@ -1,9 +1,11 @@
 import { RouteImpl } from "../../interfaces/route.impl";
 import { RouteDefinition } from "../definitions/route.definition";
 import { HttpMethod } from "../enums/http_method.enum";
+import { HANDLER_PARAMETERS } from "../metadatas/handler_parameters.metadata";
 import { ORIGINAL_CONSTRUCTOR_METADATA } from "../metadatas/original_constructor.metadata";
 import { ROUTE_METADATA } from "../metadatas/route.metadata";
 import { ClassConstructor } from "../types/class_constructor.type";
+import { HandlerParameters } from "../types/handler_parameters.type";
 
 // Decorador para declarar rotas
 export function DefineRoute(data: {
@@ -11,8 +13,9 @@ export function DefineRoute(data: {
     method: HttpMethod,
 }) {
     return function<T extends ClassConstructor<RouteImpl>>(constructor: T) {
-        // Recupera o construtor original guardado em metadados
+        // Recupera dados guardados nos metadados
         const originalConstructor: ClassConstructor = Reflect.getMetadata(ORIGINAL_CONSTRUCTOR_METADATA, constructor) ?? constructor;
+        const handlerParameters: HandlerParameters = Reflect.getMetadata(HANDLER_PARAMETERS, constructor) ?? {};
 
         // Cria um novo construtor para a classe
         // Isso é feito para adicionar logica no instanciamento da classe
@@ -24,6 +27,7 @@ export function DefineRoute(data: {
                 const routeDefinition = new RouteDefinition({
                     route: this,
                     method: data.method,
+                    parameters: handlerParameters,
                     path: data.path.startsWith("/") ? data.path : `/${data.path}`,
                 });
 
